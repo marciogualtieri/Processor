@@ -27,7 +27,7 @@ public class BookingProcessorHelperTest {
         List<BookingRequest> bookingRequests = TestBookingBuilderHelper
                 .bookingRequestsBuilder();
         Map<LocalDate, List<Booking>> bookingCalendar = bookingProcessorHelper
-                .processBookingRequestsAndCreateCalendar(bookingRequests,
+                .createBookingCalendarFromBookingRequests(bookingRequests,
                         officeHours);
         Map<LocalDate, List<Booking>> expectedBookingCalendar = TestBookingBuilderHelper
                 .bookingCalendarBuilder();

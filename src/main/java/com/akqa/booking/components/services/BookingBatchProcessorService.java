@@ -1,16 +1,5 @@
 package com.akqa.booking.components.services;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.io.FileUtils;
-import org.joda.time.LocalDate;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.akqa.booking.components.helpers.BookingCalendarHelper;
 import com.akqa.booking.components.helpers.BookingProcessorHelper;
 import com.akqa.booking.components.helpers.BookingRequestHelper;
@@ -21,6 +10,16 @@ import com.akqa.booking.entities.OfficeHours;
 import com.akqa.booking.exceptions.BookingException;
 import com.akqa.booking.messages.BookingMessages;
 import com.google.common.collect.Lists;
+import org.apache.commons.io.FileUtils;
+import org.joda.time.LocalDate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Process booking requests as text and outputs a booking calendar.
@@ -28,7 +27,7 @@ import com.google.common.collect.Lists;
 @Component
 public class BookingBatchProcessorService {
 
-    private static int BOOKING_REQUEST_NUMBER_OF_LINES = 2;
+    private static final int BOOKING_REQUEST_NUMBER_OF_LINES = 2;
 
     private final BookingRequestHelper bookingRequestHelper;
     private final BookingCalendarHelper bookingCalendarHelper;
@@ -45,15 +44,15 @@ public class BookingBatchProcessorService {
     }
 
     public void processBatchFile(String bookingRequestBatchFileNameAndPath,
-            String outputFileNameAndPath) throws BookingException {
+                                 String outputFileNameAndPath) throws BookingException {
         List<String> lines = readLinesFromFile(bookingRequestBatchFileNameAndPath);
         OfficeHours officeHours = bookingRequestHelper
                 .parseOfficeHoursText(lines
                         .get(BookingConstants.OFFICE_HOURS_LINE_INDEX));
         lines.remove(BookingConstants.OFFICE_HOURS_LINE_INDEX);
-        List<BookingRequest> bookingRequests = bookingRequestsBuilder(lines);
+        List<BookingRequest> bookingRequests = buildBookingRequestsFromFileLines(lines);
         Map<LocalDate, List<Booking>> bookingCalendar = bookingProcessorHelper
-                .processBookingRequestsAndCreateCalendar(bookingRequests,
+                .createBookingCalendarFromBookingRequests(bookingRequests,
                         officeHours);
         bookingCalendarHelper.createOutputFileFromBookingCalendar(
                 bookingCalendar, outputFileNameAndPath);
@@ -65,7 +64,7 @@ public class BookingBatchProcessorService {
                 .format(BookingMessages.BOOKING_BATCH_FILE_LOADING_EXCEPTION_MESSAGE_FORMAT,
                         bookingRequestBatchFileNameAndPath);
         File file = new File(bookingRequestBatchFileNameAndPath);
-        List<String> lines = null;
+        List<String> lines;
         if (!file.exists()) {
             throw new BookingException(message, new IOException());
         }
@@ -78,7 +77,7 @@ public class BookingBatchProcessorService {
         return lines;
     }
 
-    private List<BookingRequest> bookingRequestsBuilder(List<String> fileLines)
+    private List<BookingRequest> buildBookingRequestsFromFileLines(List<String> fileLines)
             throws BookingException {
         List<List<String>> bookingRequestsAsText = Lists.partition(fileLines,
                 BOOKING_REQUEST_NUMBER_OF_LINES);

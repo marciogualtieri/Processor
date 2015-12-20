@@ -3,12 +3,10 @@ package com.akqa.booking.constants;
 import java.util.regex.Pattern;
 
 public class BookingConstants {
-    public static final String BOOKING_RECORD_LINE_REGEX = String
-            .format("(\\S+ ?\\S*) (\\S+)");
+    public static final String BOOKING_RECORD_LINE_REGEX = "(\\S+ ?\\S*) (\\S+)";
     public static final Pattern BOOKING_RECORD_LINE_PATTERN = Pattern
             .compile(BOOKING_RECORD_LINE_REGEX);
-    public static final String OFFICE_HOURS_AS_STRING_REGEX = String
-            .format("(\\S+) (\\S+)");
+    public static final String OFFICE_HOURS_AS_STRING_REGEX = "(\\S+) (\\S+)";
     public static final Pattern OFFICE_HOURS_PATTERN = Pattern
             .compile(OFFICE_HOURS_AS_STRING_REGEX);
     public static final String SUBMISSION_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";

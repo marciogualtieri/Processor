@@ -46,12 +46,12 @@ public class BookingCalendarHelper {
     }
 
     private void validateOutputDirectory(File outputDirectory) throws BookingException {
-        String message = String.format(
-                BookingMessages.BOOKING_OUTPUT_DIRECTORY_EXCEPTION_MESSAGE_FORMAT,
-                outputDirectory.getAbsoluteFile());
         if (outputDirectory == null
                 || !outputDirectory.exists() || !outputDirectory
                 .isDirectory()) {
+            String message = String.format(
+                    BookingMessages.BOOKING_OUTPUT_DIRECTORY_EXCEPTION_MESSAGE_FORMAT,
+                    outputDirectory == null ? null : outputDirectory.getAbsoluteFile());
             throw new BookingException(message, new IOException());
         }
     }

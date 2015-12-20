@@ -1,29 +1,28 @@
 package com.akqa.booking.components.helpers;
 
-import java.util.List;
-import java.util.regex.Matcher;
-
-import org.joda.time.DateTime;
-import org.joda.time.LocalTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-import org.springframework.stereotype.Component;
-
 import com.akqa.booking.constants.BookingConstants;
 import com.akqa.booking.entities.Booking;
 import com.akqa.booking.entities.BookingRequest;
 import com.akqa.booking.entities.OfficeHours;
 import com.akqa.booking.exceptions.BookingException;
 import com.akqa.booking.messages.BookingMessages;
+import org.joda.time.DateTime;
+import org.joda.time.LocalTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.regex.Matcher;
 
 @Component
 public class BookingRequestHelper {
 
     public BookingRequest parseBookingRequestText(
             List<String> bookingRequestAsText) throws BookingException {
-        BookingRequest bookingRequest = null;
+        BookingRequest bookingRequest;
         try {
-            bookingRequest = bookingRequestBuilder(bookingRequestAsText);
+            bookingRequest = buildBookingRequestFromFileLines(bookingRequestAsText);
         } catch (Exception e) {
             String message = String
                     .format(BookingMessages.BOOKING_REQUEST_PARSING_EXCEPTION_MESSAGE_FORMAT,
@@ -35,12 +34,11 @@ public class BookingRequestHelper {
 
     public OfficeHours parseOfficeHoursText(String officeHoursAsText)
             throws BookingException {
-        OfficeHours officeHours = null;
+        OfficeHours officeHours;
         Matcher matcher = BookingConstants.OFFICE_HOURS_PATTERN
                 .matcher(officeHoursAsText);
         try {
-            matcher.find();
-            officeHours = officeHoursBuilder(matcher);
+            officeHours = buildOfficeHours(matcher);
         } catch (Exception e) {
             String message = String
                     .format(BookingMessages.OFFICE_HOURS_PARSING_EXCEPTION_MESSAGE_FORMAT,
@@ -50,7 +48,7 @@ public class BookingRequestHelper {
         return officeHours;
     }
 
-    public Booking createBookingFromBookingRequest(BookingRequest bookingRequest) {
+    public Booking buildBookingFromRequest(BookingRequest bookingRequest) {
         Booking booking = new Booking();
         LocalTime meetingStartTime = bookingRequest.getMeetingStartTime()
                 .toLocalTime();
@@ -62,7 +60,7 @@ public class BookingRequestHelper {
         return booking;
     }
 
-    private BookingRequest bookingRequestBuilder(
+    private BookingRequest buildBookingRequestFromFileLines(
             List<String> bookingRequestAsText) throws BookingException {
         BookingRequest bookingRequest = new BookingRequest();
         updateBookingRequestSubmissionData(bookingRequest,
@@ -85,16 +83,16 @@ public class BookingRequestHelper {
     }
 
     private void updateBookingRequestMeetingData(BookingRequest bookingRequest,
-            String BookingRequestMeetingLine) {
+                                                 String BookingRequestMeetingLine) {
         Matcher matcher = BookingConstants.BOOKING_RECORD_LINE_PATTERN
                 .matcher(BookingRequestMeetingLine);
-        matcher.find();
         bookingRequest
                 .setMeetingStartTime(parseMeetingStartDateAndTimeString(matcher));
         bookingRequest.setMeetingDuration(parseMeetingDuration(matcher));
     }
 
-    private OfficeHours officeHoursBuilder(Matcher matcher) {
+    private OfficeHours buildOfficeHours(Matcher matcher) {
+        matcher.find();
         OfficeHours officeHours = new OfficeHours();
         officeHours.setStartTime(parseOfficeHoursStartString(matcher));
         officeHours.setEndTime(parseOfficeHoursEndString(matcher));
@@ -122,25 +120,22 @@ public class BookingRequestHelper {
     }
 
     private String parseEmployeeId(Matcher matcher) {
-        String employeeId = matcher
+        return matcher
                 .group(BookingConstants.EMPLOYEE_ID_REGEX_GROUP_INDEX);
-        return employeeId;
     }
 
     private DateTime parseDateAndTimeString(String dateAndTimeAsString,
-            String datePattern) {
+                                            String datePattern) {
         DateTimeFormatter dateTimeFormatter = DateTimeFormat
                 .forPattern(datePattern);
-        DateTime dateTime = dateTimeFormatter
+        return dateTimeFormatter
                 .parseDateTime(dateAndTimeAsString);
-        return dateTime;
     }
 
     private LocalTime parseTimeString(String timeAsString, String timePattern) {
         DateTimeFormatter dateTimeFormatter = DateTimeFormat
                 .forPattern(timePattern);
-        LocalTime localTime = dateTimeFormatter.parseLocalTime(timeAsString);
-        return localTime;
+        return dateTimeFormatter.parseLocalTime(timeAsString);
     }
 
     private DateTime parseSubmissionDateAndTimeString(Matcher matcher) {
@@ -151,6 +146,7 @@ public class BookingRequestHelper {
     }
 
     private DateTime parseMeetingStartDateAndTimeString(Matcher matcher) {
+        matcher.find();
         String meetingStartDateAndTime = matcher
                 .group(BookingConstants.MEETING_START_DATE_AND_TIME_REGEX_GROUP_INDEX);
         return parseDateAndTimeString(meetingStartDateAndTime,

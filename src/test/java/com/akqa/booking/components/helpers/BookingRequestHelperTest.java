@@ -113,7 +113,7 @@ public class BookingRequestHelperTest {
         BookingRequest bookingRequest = TestBookingBuilderHelper
                 .bookingRequestBuilder();
         Booking booking = bookingRequestHelper
-                .createBookingFromBookingRequest(bookingRequest);
+                .buildBookingFromRequest(bookingRequest);
         Booking expectedBooking = TestBookingBuilderHelper.bookingBuilder();
         assertThat(booking, equalTo(expectedBooking));
     }

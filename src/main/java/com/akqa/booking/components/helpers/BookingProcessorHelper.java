@@ -1,20 +1,15 @@
 package com.akqa.booking.components.helpers;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import com.akqa.booking.entities.Booking;
+import com.akqa.booking.entities.BookingRequest;
+import com.akqa.booking.entities.OfficeHours;
+import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.akqa.booking.entities.Booking;
-import com.akqa.booking.entities.BookingRequest;
-import com.akqa.booking.entities.OfficeHours;
-import com.google.common.collect.Lists;
+import java.util.*;
 
 @Component
 public class BookingProcessorHelper {
@@ -26,28 +21,34 @@ public class BookingProcessorHelper {
         this.bookingRequestHelper = bookingRequestHelper;
     }
 
-    public Map<LocalDate, List<Booking>> processBookingRequestsAndCreateCalendar(
+    public Map<LocalDate, List<Booking>> createBookingCalendarFromBookingRequests(
             List<BookingRequest> bookingRequests, OfficeHours officeHours) {
         Map<LocalDate, List<Booking>> bookingCalendar = new HashMap<>();
         sortBookingRequests(bookingRequests);
         for (BookingRequest bookingRequest : bookingRequests) {
-            LocalDate meetingDate = bookingRequest.getMeetingStartTime()
-                    .toLocalDate();
-            Booking booking = bookingRequestHelper
-                    .createBookingFromBookingRequest(bookingRequest);
-            if (bookingCalendar.containsKey(meetingDate)) {
-                if (isNotOverlapped(booking, bookingCalendar.get(meetingDate))
-                        && isNotOutOfOfficeHours(booking, officeHours)) {
-                    bookingCalendar.get(meetingDate).add(booking);
-                }
-            } else {
-                if (isNotOutOfOfficeHours(booking, officeHours)) {
-                    List<Booking> newBookings = Lists.newArrayList(booking);
-                    bookingCalendar.put(meetingDate, newBookings);
-                }
-            }
+            processBookingRequestAndAddEntryToCalendar(bookingRequest, officeHours, bookingCalendar);
         }
         return bookingCalendar;
+    }
+
+    private void processBookingRequestAndAddEntryToCalendar(BookingRequest bookingRequest,
+                                                            OfficeHours officeHours,
+                                                            Map<LocalDate, List<Booking>> bookingCalendar) {
+        LocalDate meetingDate = bookingRequest.getMeetingStartTime()
+                .toLocalDate();
+        Booking booking = bookingRequestHelper
+                .buildBookingFromRequest(bookingRequest);
+        if (bookingCalendar.containsKey(meetingDate)) {
+            if (isNotOverlapped(booking, bookingCalendar.get(meetingDate))
+                    && isNotOutOfOfficeHours(booking, officeHours)) {
+                bookingCalendar.get(meetingDate).add(booking);
+            }
+        } else {
+            if (isNotOutOfOfficeHours(booking, officeHours)) {
+                List<Booking> newBookings = Lists.newArrayList(booking);
+                bookingCalendar.put(meetingDate, newBookings);
+            }
+        }
     }
 
     private void sortBookingRequests(List<BookingRequest> bookingRequests) {
@@ -55,7 +56,7 @@ public class BookingProcessorHelper {
             Collections.sort(bookingRequests, new Comparator<BookingRequest>() {
                 @Override
                 public int compare(final BookingRequest bookingRequest,
-                        final BookingRequest anotherBookingRequest) {
+                                   final BookingRequest anotherBookingRequest) {
                     return bookingRequest.getSubmissionTime().compareTo(
                             anotherBookingRequest.getSubmissionTime());
                 }
@@ -88,7 +89,7 @@ public class BookingProcessorHelper {
     }
 
     private boolean isNotOutOfOfficeHours(Booking booking,
-            OfficeHours officeHours) {
+                                          OfficeHours officeHours) {
         return !(booking.getMeetingStartTime().isBefore(
                 officeHours.getStartTime()) || booking.getMeetingEndTime()
                 .isAfter(officeHours.getEndTime()));

@@ -21,9 +21,9 @@ import static org.springframework.batch.test.AssertFile.assertFileEquals;
 
 public class BookingBatchProcessorServiceTest {
 
-    private BookingRequestHelper bookingRequestHelper = new BookingRequestHelper();
-    private BookingCalendarHelper bookingCalendarHelper = new BookingCalendarHelper();
-    private BookingProcessorHelper bookingProcessorHelper = new BookingProcessorHelper(
+    private final BookingRequestHelper bookingRequestHelper = new BookingRequestHelper();
+    private final BookingCalendarHelper bookingCalendarHelper = new BookingCalendarHelper();
+    private final BookingProcessorHelper bookingProcessorHelper = new BookingProcessorHelper(
             bookingRequestHelper);
     private final BookingBatchProcessorService bookingBatchProcessor = new BookingBatchProcessorService(
             bookingRequestHelper, bookingCalendarHelper, bookingProcessorHelper);
