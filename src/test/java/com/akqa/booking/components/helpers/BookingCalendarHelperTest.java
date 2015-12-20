@@ -1,26 +1,21 @@
 package com.akqa.booking.components.helpers;
 
-import static com.googlecode.catchexception.CatchException.caughtException;
-import static com.googlecode.catchexception.apis.CatchExceptionBdd.then;
-import static com.googlecode.catchexception.apis.CatchExceptionBdd.when;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
-import static org.springframework.batch.test.AssertFile.assertFileEquals;
-
-import java.io.File;
-import java.io.IOException;
-
+import com.akqa.booking.exceptions.BookingException;
+import com.akqa.test.constants.TestCommonConstants;
+import com.akqa.test.helpers.TestBookingBuilderHelper;
 import org.codehaus.plexus.util.FileUtils;
 import org.junit.After;
 import org.junit.Test;
 
-import com.akqa.booking.components.helpers.BookingCalendarHelper;
-import com.akqa.booking.exceptions.BookingException;
-import com.akqa.test.constants.TestCommonConstants;
-import com.akqa.test.helpers.TestBookingBuilderHelper;
+import java.io.File;
+import java.io.IOException;
+
+import static com.googlecode.catchexception.CatchException.caughtException;
+import static com.googlecode.catchexception.apis.CatchExceptionBdd.then;
+import static com.googlecode.catchexception.apis.CatchExceptionBdd.when;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.springframework.batch.test.AssertFile.assertFileEquals;
 
 public class BookingCalendarHelperTest {
 
@@ -58,7 +53,7 @@ public class BookingCalendarHelperTest {
             throws Exception {
         when(bookingCalendarHelper).createOutputFileFromBookingCalendar(
                 TestBookingBuilderHelper.bookingCalendarBuilder(),
-                TestCommonConstants.NON_EXISTENT_DIRECTORY);
+                TestCommonConstants.FILE_NAME_AND_NON_EXISTENT_PATH);
         then(caughtException())
                 .isInstanceOf(BookingException.class)
                 .hasMessageContaining(

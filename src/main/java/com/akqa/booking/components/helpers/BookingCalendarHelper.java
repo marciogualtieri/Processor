@@ -1,22 +1,17 @@
 package com.akqa.booking.components.helpers;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-
+import com.akqa.booking.constants.BookingConstants;
+import com.akqa.booking.entities.Booking;
+import com.akqa.booking.exceptions.BookingException;
+import com.akqa.booking.messages.BookingMessages;
 import org.apache.commons.io.FileUtils;
 import org.joda.time.LocalDate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
-import com.akqa.booking.constants.BookingConstants;
-import com.akqa.booking.entities.Booking;
-import com.akqa.booking.exceptions.BookingException;
-import com.akqa.booking.messages.BookingMessages;
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
 
 @Component
 public class BookingCalendarHelper {
@@ -24,20 +19,13 @@ public class BookingCalendarHelper {
     public void createOutputFileFromBookingCalendar(
             Map<LocalDate, List<Booking>> bookingCalendar,
             String outputFileNameAndPath) throws BookingException {
-        File outputFile = null;
-        String message = String.format(
-                BookingMessages.BOOKING_OUTPUT_FILE_EXCEPTION_MESSAGE_FORMAT,
-                outputFileNameAndPath);
         if (!CollectionUtils.isEmpty(bookingCalendar)) {
+            String message = String.format(
+                    BookingMessages.BOOKING_OUTPUT_FILE_WRITING_EXCEPTION_MESSAGE_FORMAT,
+                    outputFileNameAndPath);
             try {
-                outputFile = new File(outputFileNameAndPath);
-                File outputDirectory = outputFile.getParentFile();
-                if (outputDirectory != null
-                        && !(outputDirectory.exists() && outputDirectory
-                                .isDirectory())) {
-                    throw new BookingException(message, new IOException());
-                }
-                List<LocalDate> calendarDates = new ArrayList<LocalDate>(
+                File outputFile = getOutputFile(outputFileNameAndPath);
+                List<LocalDate> calendarDates = new ArrayList<>(
                         bookingCalendar.keySet());
                 Collections.sort(calendarDates);
                 for (LocalDate calendarDate : calendarDates) {
@@ -50,10 +38,28 @@ public class BookingCalendarHelper {
         }
     }
 
+    private File getOutputFile(String outputFileNameAndPath) throws BookingException {
+        File outputFile = new File(outputFileNameAndPath);
+        File outputDirectory = outputFile.getParentFile();
+        validateOutputDirectory(outputDirectory);
+        return outputFile;
+    }
+
+    private void validateOutputDirectory(File outputDirectory) throws BookingException {
+        String message = String.format(
+                BookingMessages.BOOKING_OUTPUT_DIRECTORY_EXCEPTION_MESSAGE_FORMAT,
+                outputDirectory.getAbsoluteFile());
+        if (outputDirectory == null
+                || !outputDirectory.exists() || !outputDirectory
+                .isDirectory()) {
+            throw new BookingException(message, new IOException());
+        }
+    }
+
     private void writeCalendarEntryToFile(File outputFile,
-            LocalDate calendarDate, List<Booking> bookings) throws IOException {
+                                          LocalDate calendarDate, List<Booking> bookings) throws IOException {
         FileUtils.writeStringToFile(outputFile, calendarDate.toString()
-                + BookingConstants.LINE_SEPARATOR,
+                        + BookingConstants.LINE_SEPARATOR,
                 BookingConstants.IS_APPEND_TO_FILE);
         sortBookings(bookings);
         for (Booking booking : bookings) {
@@ -68,7 +74,7 @@ public class BookingCalendarHelper {
             Collections.sort(bookings, new Comparator<Booking>() {
                 @Override
                 public int compare(final Booking booking,
-                        final Booking anotherBooking) {
+                                   final Booking anotherBooking) {
                     return booking.getMeetingStartTime().compareTo(
                             anotherBooking.getMeetingStartTime());
                 }

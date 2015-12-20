@@ -1,13 +1,13 @@
 package com.akqa.test.constants;
 
-import java.util.List;
-
+import com.akqa.booking.messages.BookingMessages;
+import com.google.common.collect.Lists;
 import org.apache.commons.io.FilenameUtils;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 
-import com.google.common.collect.Lists;
+import java.util.List;
 
 public class TestCommonConstants {
     public static final String BOOKING_REQUEST_EMPLOYEE_ID_EMP001 = "EMP001";
@@ -44,13 +44,13 @@ public class TestCommonConstants {
     public static final String PROCESSOR_OUTPUT_FILE_NAME_AND_PATH = "target/processor_output.txt";
     public static final String HELPER_OUTPUT_FILE_NAME_AND_PATH = "target/helper_output.txt";
     public static final String NON_EXISTENT_DIRECTORY = FilenameUtils
-            .separatorsToSystem("/i/do/not/exist");
-    public static final String NON_EXISTENT_FILE_NAME_AND_PATH = FilenameUtils
-            .separatorsToSystem("/i/do/not.exist");
+            .separatorsToSystem("/a/non/existent/path");
+    public static final String FILE_NAME_AND_NON_EXISTENT_PATH = FilenameUtils
+            .separatorsToSystem(NON_EXISTENT_DIRECTORY + "/file");
     public static final String NON_EXISTENT_DIRECTORY_ERROR_MESSAGE = String
-            .format("Error creating output file [%s]", NON_EXISTENT_DIRECTORY);
+            .format(BookingMessages.BOOKING_OUTPUT_DIRECTORY_EXCEPTION_MESSAGE_FORMAT, NON_EXISTENT_DIRECTORY);
     public static final String NON_EXISTENT_FILE_ERROR_MESSAGE = String.format(
-            "Error loading booking request batch file [%s]", NON_EXISTENT_FILE_NAME_AND_PATH);
+            BookingMessages.BOOKING_BATCH_FILE_LOADING_EXCEPTION_MESSAGE_FORMAT, FILE_NAME_AND_NON_EXISTENT_PATH);
     public static final LocalDate CALENDAR_BOOKING_ENTRY_DATE = new LocalDate(
             2011, 3, 21);
     public static final LocalTime CALENDAR_BOOKING_ENTRY_START_TIME_EMP001 = new LocalTime(
