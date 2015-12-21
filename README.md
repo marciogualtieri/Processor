@@ -3,7 +3,7 @@
 ##### [EXECUTE THE JAR IN THE COMMAND LINE](#execute-the-jar-in-the-command-line)
 ##### [IDE SETUP](#ide-setup)
 ##### [BEHAVIORAL DRIVEN DEVELOPMENT](#behavioral-driven-development)
-##### [javadoc](#javadoc)
+##### [JAVADOC](#javadoc)
 
 ### <a name="test-and-build-the-application"></a> TEST & BUILD THE APPLICATION
 
